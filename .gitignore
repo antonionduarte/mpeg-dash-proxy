@@ -12,8 +12,8 @@
 
 # IntellIJ files
 */.idea
-*/.idea/*
-*/*.iml
+.idea
+*.iml
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
