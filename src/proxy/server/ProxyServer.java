@@ -27,7 +27,7 @@ public class ProxyServer {
 
 	private static final int PROXY_SERVER_PORT = 1234;
 
-	public static void start( BiFunction<String, BlockingQueue<SegmentContent>, Runnable> factory ) {
+	public static void start (BiFunction<String, BlockingQueue<SegmentContent>, Runnable> factory) {
 		try (var ss = new ServerSocket(PROXY_SERVER_PORT)) {
 			System.err.printf("ProxyServer listening on port %s\n", ss.getLocalPort());
 			for (;;) {
