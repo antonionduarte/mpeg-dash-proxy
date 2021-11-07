@@ -49,7 +49,6 @@ public class MovieManifest {
 	 * @return parsed manifest file
 	 */
 	public static Manifest parse(String manifest) {
-
 			try (var sc = new Scanner(manifest)) {
 				var movie = sc.nextLine();
 				var numTracks = Integer.valueOf(sc.nextLine());
@@ -84,7 +83,7 @@ public class MovieManifest {
 	 */
 	public static void main(String[] args) throws Exception {
 		var manifest = parse(EXAMPLE_MANIFEST);
-		System.out.println( manifest );
+		System.out.println(manifest);
 	}
 	
 	

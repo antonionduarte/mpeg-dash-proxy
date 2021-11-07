@@ -24,7 +24,7 @@ public class HttpClient10 implements HttpClient {
 	static private byte[] getContents(InputStream in) throws IOException {
 
 		String reply = Http.readLine(in);
-		//System.out.println(reply);
+		System.out.println(reply);
 		if (!reply.contains(HTTP_SUCCESS)) {
 			throw new RuntimeException(String.format("HTTP request failed: [%s]", reply));
 		}
@@ -40,7 +40,7 @@ public class HttpClient10 implements HttpClient {
 			URL url = new URL(urlStr);
 			int port = url.getPort();
 			try (Socket cs = new Socket(url.getHost(), port < 0 ? url.getDefaultPort(): port)) {
-				String request = String.format(GET_FORMAT_STR + "\r\n", url.getFile(), USER_AGENT);
+				String request = String.format(GET_FORMAT_STR + "\r\n\r\n", url.getFile(), USER_AGENT);
 				//System.out.println(request);
 				cs.getOutputStream().write(request.getBytes());
 				return getContents(cs.getInputStream());
@@ -60,19 +60,16 @@ public class HttpClient10 implements HttpClient {
 				OutputStream out = cs.getOutputStream();
 				String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n" + String.format("Range: bytes=%s-\r\n\r\n", start);
 				out.write(request.getBytes());
-				System.out.println(request);
 
 				InputStream in = cs.getInputStream();
 
 				String statusLine = Http.readLine(in);
-				System.out.println(statusLine); // TODO: Delete
 				String[] statusParts = Http.parseHttpReply(statusLine);
 
 				if (statusParts[1].equals(HTTP_206_PARTIAL)) {
 					String headerLine;
 					int contentLength = -1;
 					while ((headerLine = Http.readLine(in)).length() > 0) {
-						System.out.println(headerLine); // TODO: Delete
 						String[] headerParts = Http.parseHttpHeader(headerLine);
 						if (headerParts[0].equalsIgnoreCase(CONTENT_LENGTH)) {
 							contentLength = Integer.valueOf(headerParts[1]);
@@ -101,19 +98,19 @@ public class HttpClient10 implements HttpClient {
 				OutputStream out = cs.getOutputStream();
 				String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n" + String.format("Range: bytes=%s-%s\r\n\r\n", start, end);
 				out.write(request.getBytes());
-				System.out.println(request);
+				//System.out.println(request);
 
 				InputStream in = cs.getInputStream();
 
 				String statusLine = Http.readLine(in);
-				System.out.println(statusLine); // TODO: Delete
+				//System.out.println(statusLine); // TODO: Delete
 				String[] statusParts = Http.parseHttpReply(statusLine);
 
 				if (statusParts[1].equals(HTTP_206_PARTIAL)) {
 					String headerLine;
 					int contentLength = -1;
 					while ((headerLine = Http.readLine(in)).length() > 0) {
-						System.out.println(headerLine); // TODO: Delete
+						//System.out.println(headerLine); // TODO: Delete
 						String[] headerParts = Http.parseHttpHeader(headerLine);
 						if (headerParts[0].equalsIgnoreCase(CONTENT_LENGTH)) {
 							contentLength = Integer.valueOf(headerParts[1]);

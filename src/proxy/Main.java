@@ -1,6 +1,8 @@
 package proxy;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import http.HttpClient;
 import http.HttpClient10;
@@ -10,7 +12,7 @@ import media.MovieManifest.SegmentContent;
 import proxy.server.ProxyServer;
 
 public class Main {
-	static final String MEDIA_SERVER_BASE_URL = "http://localhost:80";
+	static final String MEDIA_SERVER_BASE_URL = "http://localhost:9999";
 
 	public static void main(String[] args) throws Exception {
 
@@ -30,34 +32,55 @@ public class Main {
 	 * 2) if network conditions allow, retrieve segments from higher quality tracks
 	 */
 	static class DashPlaybackHandler implements Runnable  {
-		
 		final String movie;
 		final Manifest manifest;
 		final BlockingQueue<SegmentContent> queue;
 
 		final HttpClient http;
 		
-		DashPlaybackHandler( String movie, BlockingQueue<SegmentContent> queue) {
+		DashPlaybackHandler(String movie, BlockingQueue<SegmentContent> queue) {
 			this.movie = movie;
 			this.queue = queue;
 			
 			this.http = new HttpClient10();
-			
-			
-			this.manifest = null; //TODO
+			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/manifest.txt";
+			String manifestStr = new String(http.doGet(request));
+			//System.out.println(manifestStr);
+
+			this.manifest = MovieManifest.parse(manifestStr);
 		}
-		
+
+
 		/**
 		 * Runs automatically in a dedicated thread...
-		 * 
+		 *
 		 * Needs to feed the queue with segment data fast enough to
 		 * avoid stalling the browser player
-		 * 
+		 *
 		 * Upon reaching the end of stream, the queue should
 		 * be fed with a zero-length data segment
 		 */
 		public void run() {
-			// TODO
+			List<MovieManifest.Track> tracks = manifest.tracks();
+
+			MovieManifest.Track test = tracks.get(3);
+			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename();
+			System.out.println(queue.remainingCapacity());
+
+			for (int i = 0; i < test.segments().size(); i++) {
+				MovieManifest.Segment segment = test.segments().get(i);
+				int offset = segment.offset();
+				int start = offset;
+				int end = offset + segment.length() - 1;
+				byte[] content = http.doGetRange(request, offset, end);
+
+				SegmentContent segmentContent = new SegmentContent(test.contentType(), content);
+				try {
+					queue.put(segmentContent);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

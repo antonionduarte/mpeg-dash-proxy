@@ -32,7 +32,7 @@ public class ProxyServer {
 			System.err.printf("ProxyServer listening on port %s\n", ss.getLocalPort());
 			for (;;) {
 				try(var cs = ss.accept()) {
-					System.err.println( "Handling request from:" +cs.getLocalSocketAddress());
+					System.err.println( "Handling request from:" + cs.getLocalSocketAddress());
 					Player.processBrowserRequest(cs, factory);					
 					System.err.println( "Done");
 				} catch( Exception x ) {
@@ -76,7 +76,7 @@ class Player {
 		String movie = pathTokens[2];
 		String command = pathTokens[3];
 
-		System.err.println( movie );
+		System.err.println(movie);
 
 		var player = players.get(playerId);
 		if (player == null && command.equals(START_COMMAND)) {
@@ -94,7 +94,7 @@ class Player {
 				.append(CRLF);
 
 		System.err.println("REPLY:" + sb.toString());
-		
+
 		cs.getOutputStream().write( sb.toString().getBytes() );
 		cs.getOutputStream().write( data);	
 		cs.close();
