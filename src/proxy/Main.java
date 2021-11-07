@@ -16,7 +16,7 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
-		ProxyServer.start( (movie, queue) -> new DashPlaybackHandler(movie, queue) );
+		ProxyServer.start((movie, queue) -> new DashPlaybackHandler(movie, queue));
 		
 	}
 	/**
@@ -65,14 +65,23 @@ public class Main {
 
 			MovieManifest.Track test = tracks.get(3);
 			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename();
-			System.out.println(queue.remainingCapacity());
+			float lastBandwidth = 0;
+			float trackBandwidth = test.avgBandwidth();
+			System.out.println("TEST BAND: " + trackBandwidth);
 
 			for (int i = 0; i < test.segments().size(); i++) {
 				MovieManifest.Segment segment = test.segments().get(i);
 				int offset = segment.offset();
-				int start = offset;
 				int end = offset + segment.length() - 1;
+
+				long startTime = System.nanoTime();
 				byte[] content = http.doGetRange(request, offset, end);
+				long endTime = System.nanoTime();
+
+				long elapsedTimeSeconds = (endTime - startTime) / 1_000_000_000;
+				lastBandwidth = (((float) content.length * 8) / elapsedTimeSeconds);
+				System.out.println("Bandwidth: " + lastBandwidth);
+				System.out.println("Queue Size: " + queue.size());
 
 				SegmentContent segmentContent = new SegmentContent(test.contentType(), content);
 				try {
