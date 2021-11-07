@@ -45,7 +45,6 @@ public class Main {
 			this.http = new HttpClient10();
 			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/manifest.txt";
 			String manifestStr = new String(http.doGet(request));
-			//System.out.println(manifestStr);
 
 			this.manifest = MovieManifest.parse(manifestStr);
 		}
