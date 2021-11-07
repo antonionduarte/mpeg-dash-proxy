@@ -13,7 +13,7 @@ public interface HttpClient {
 	/**
 	 * TODO: replace aaaaa-bbbbb with student numbers
 	 */
-	static final String USER_AGENT = "User-Agent: X-aaaaa-bbbbb\r\n";
+	static final String USER_AGENT = "User-Agent: X-12345-67891\r\n";
 
 	/**
 	 * Gets the full contents of a resource
