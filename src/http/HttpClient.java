@@ -11,9 +11,9 @@ public interface HttpClient {
 	static final int HTTP_DEFAULT_PORT = 80;
 
 	/**
-	 * TODO: replace aaaaa-bbbbb with student numbers
+	 * User Agent
 	 */
-	static final String USER_AGENT = "User-Agent: X-12345-67891\r\n";
+	static final String USER_AGENT = "User-Agent: X-58278-57833";
 
 	/**
 	 * Gets the full contents of a resource
