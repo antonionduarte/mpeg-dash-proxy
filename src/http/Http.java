@@ -197,7 +197,7 @@ public class Http {
 	}
 
 	static void Assert(boolean value) {
-		if (value != true)
+		if (!value)
 			throw new AssertionError();
 	}
 
