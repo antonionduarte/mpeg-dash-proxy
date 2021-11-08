@@ -1,5 +1,6 @@
 package http;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,8 +19,7 @@ public class HttpClient10 implements HttpClient {
 
 	static private byte[] getContents(InputStream in) throws IOException {
 		String reply = Http.readLine(in);
-		System.out.println(reply);
-		if (!reply.contains(HTTP_SUCCESS)) {
+ 		if (!reply.contains(HTTP_SUCCESS)) {
 			throw new RuntimeException(String.format("HTTP request failed: [%s]", reply));
 		}
 
@@ -84,5 +84,10 @@ public class HttpClient10 implements HttpClient {
 			x.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		// Doesn't do anything in HTTP 1.0
 	}
 }

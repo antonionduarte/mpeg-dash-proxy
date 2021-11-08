@@ -1,12 +1,14 @@
 package http;
 
+import java.io.Closeable;
+
 /**
  * Interface for a basic HTTP client 
  * 
  * @author smduarte
  *
  */
-public interface HttpClient {
+public interface HttpClient extends Closeable {
 
 	static final int HTTP_DEFAULT_PORT = 80;
 
