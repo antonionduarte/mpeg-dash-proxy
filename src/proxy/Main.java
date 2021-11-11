@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 
 import http.HttpClient;
 import http.HttpClient10;
+import http.HttpClient11;
 import media.MovieManifest;
 import media.MovieManifest.Manifest;
 import media.MovieManifest.SegmentContent;
@@ -41,9 +42,11 @@ public class Main {
 			this.movie = movie;
 			this.queue = queue;
 			
-			this.http = new HttpClient10();
+			this.http = new HttpClient11();
 			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/manifest.txt";
 			String manifestStr = new String(http.doGet(request));
+			System.out.println("DEBUG-1");
+			System.out.println(manifestStr);
 
 			this.manifest = MovieManifest.parse(manifestStr);
 		}

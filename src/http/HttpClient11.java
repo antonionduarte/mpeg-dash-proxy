@@ -24,11 +24,11 @@ public class HttpClient11 implements HttpClient {
         }
 
         while ((reply = Http.readLine(in)).length() > 0) {
-            // System.out.println(reply);
+            System.out.println(reply);
         }
 
         byte[] bytes = in.readAllBytes();
-        in.close();
+        System.out.println("DEBUG: 2");
 
         return bytes;
     }
@@ -44,11 +44,11 @@ public class HttpClient11 implements HttpClient {
             }
 
             String request = String.format(GET_FORMAT_STR, u.getFile()) + "\r\n"
+                    + "Host: localhost:8080\r\n"
                     + USER_AGENT + "\r\n\r\n";
 
             OutputStream os = socket.getOutputStream();
             os.write(request.getBytes());
-            os.close();
 
             return getContents(socket.getInputStream());
         } catch (Exception x) {
@@ -68,6 +68,7 @@ public class HttpClient11 implements HttpClient {
             }
 
             String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n"
+                    + "Host: localhost:8080\r\n"
                     + String.format("Range: bytes=%s-\r\n", start)
                     + USER_AGENT + "\r\n\r\n";
 
@@ -93,6 +94,7 @@ public class HttpClient11 implements HttpClient {
             }
 
             String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n"
+                    + "Host: localhost:8080\r\n"
                     + String.format("Range: bytes=%s-%s\r\n", start, end)
                     + USER_AGENT + "\r\n\r\n";
 
