@@ -26,7 +26,7 @@ public class HttpClient11 implements HttpClient {
 
         int contentLength = 0;
         while ((reply = Http.readLine(in)).length() > 0) {
-            //System.out.println(reply);
+            System.out.println(reply);
             String[] headerParts = Http.parseHttpHeader(reply);
             if (headerParts != null && headerParts[0].equalsIgnoreCase(CONTENT_LENGTH_HEADER)) {
                 contentLength = Integer.parseInt(headerParts[1]);
