@@ -15,6 +15,7 @@ public class HttpClient11 implements HttpClient {
     private static final String GET_FORMAT_STR = "GET %s HTTP/1.1";
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
+    int socketOpened = 0;
     private static Socket socket = null;
 
     static private byte[] getContents(InputStream in) throws IOException {
@@ -109,6 +110,9 @@ public class HttpClient11 implements HttpClient {
 
     private void handleSocket(URL url) throws IOException {
         if (socket == null || socket.isClosed()) {
+            socketOpened++;
+            System.out.println("AMOUNT OF SOCKETS: " + socketOpened);
+
             if (socket != null) {
                 socket.close();
             }
