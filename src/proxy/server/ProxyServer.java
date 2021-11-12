@@ -15,12 +15,12 @@ import static media.MovieManifest.SegmentContent;
 
 /**
  * Server-side of the MpegDash proxy.
- * 
+ *
  * Accepts HTTP segments requests from the browser movie player.
- * 
+ *
  * 1) Launches a new client-side handler as needed.
  * 2) Feeds browser from a shared segment data queue.
- * 
+ *
  * @author smduarte
  */
 public class ProxyServer {
@@ -33,7 +33,7 @@ public class ProxyServer {
 			for (;;) {
 				try(var cs = ss.accept()) {
 					System.err.println( "Handling request from:" + cs.getLocalSocketAddress());
-					Player.processBrowserRequest(cs, factory);					
+					Player.processBrowserRequest(cs, factory);
 					System.err.println( "Done");
 				} catch( Exception x ) {
 					x.printStackTrace();
@@ -55,9 +55,9 @@ class Player {
 	private static final int MAX_SEGMENTS = 2;
 
 	private static final Object START_COMMAND = "start";
-	
+
 	final BlockingQueue<SegmentContent> queue;
-	
+
 	static void processBrowserRequest(Socket cs, BiFunction<String, BlockingQueue<SegmentContent>, Runnable> factory) throws Exception {
 		InputStream is = cs.getInputStream();
 
@@ -83,10 +83,10 @@ class Player {
 			players.put(playerId, player = new Player());
 			new Thread(factory.apply(movie, player.queue)).start();
 		}
-		
+
 		var segment = player.queue.take();
 		var data = segment.data();
-		
+
 		var sb = new StringBuffer(HTTP_OK)
 				.append( HTTP_CORS )
 				.append(String.format(HTTP_CONTENT_TYPE_FMT, segment.contentType()))
@@ -96,9 +96,9 @@ class Player {
 		System.err.println("REPLY:" + sb.toString());
 
 		cs.getOutputStream().write( sb.toString().getBytes() );
-		cs.getOutputStream().write( data);	
+		cs.getOutputStream().write( data);
 		cs.close();
-		
+
 		if( data.length == 0)
 			players.remove( playerId );
 	}

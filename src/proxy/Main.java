@@ -45,12 +45,18 @@ public class Main {
 			this.http = new HttpClient11();
 			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/manifest.txt";
 			String manifestStr = new String(http.doGet(request));
-			System.out.println("DEBUG-1");
-			System.out.println(manifestStr);
 
 			this.manifest = MovieManifest.parse(manifestStr);
 		}
 
+		private SegmentContent getSegmentContent(String request, MovieManifest.Track track, int index){
+			MovieManifest.Segment segment = track.segments().get(index);
+			int offset = segment.offset();
+			int end = offset + segment.length() - 1;
+			byte[] content = http.doGetRange(request, offset, end);
+
+			return new SegmentContent(track.contentType(), content);
+		}
 
 		/**
 		 * Runs automatically in a dedicated thread...

@@ -13,24 +13,27 @@ public class HttpClient11 implements HttpClient {
 
     private static final String HTTP_SUCCESS = "20";
     private static final String GET_FORMAT_STR = "GET %s HTTP/1.1";
+    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
     private static Socket socket = null;
 
     static private byte[] getContents(InputStream in) throws IOException {
         String reply = Http.readLine(in);
-        System.out.println(reply);
+
         if (!reply.contains(HTTP_SUCCESS)) {
             throw new RuntimeException(String.format("HTTP request failed: [%s]", reply));
         }
 
+        int contentLength = 0;
         while ((reply = Http.readLine(in)).length() > 0) {
-            System.out.println(reply);
+            //System.out.println(reply);
+            String[] headerParts = Http.parseHttpHeader(reply);
+            if (headerParts != null && headerParts[0].equalsIgnoreCase(CONTENT_LENGTH_HEADER)) {
+                contentLength = Integer.parseInt(headerParts[1]);
+            }
         }
 
-        byte[] bytes = in.readAllBytes();
-        System.out.println("DEBUG: 2");
-
-        return bytes;
+        return in.readNBytes(contentLength);
     }
 
     @Override
@@ -38,10 +41,7 @@ public class HttpClient11 implements HttpClient {
         try {
             URL u = new URL(url);
 
-            if (socket == null) {
-                int port = u.getPort();
-                socket = new Socket(u.getHost(), port > 0 ? port : HTTP_DEFAULT_PORT);
-            }
+            handleSocket(u);
 
             String request = String.format(GET_FORMAT_STR, u.getFile()) + "\r\n"
                     + "Host: localhost:8080\r\n"
@@ -62,10 +62,7 @@ public class HttpClient11 implements HttpClient {
         try {
             URL u = new URL(url);
 
-            if (socket == null) {
-                int port = u.getPort();
-                socket = new Socket(u.getHost(), port > 0 ? port : HTTP_DEFAULT_PORT);
-            }
+            handleSocket(u);
 
             String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n"
                     + "Host: localhost:8080\r\n"
@@ -74,7 +71,6 @@ public class HttpClient11 implements HttpClient {
 
             OutputStream os = socket.getOutputStream();
             os.write(request.getBytes());
-            os.close();
 
             return getContents(socket.getInputStream());
         } catch (Exception x) {
@@ -88,10 +84,7 @@ public class HttpClient11 implements HttpClient {
         try {
             URL u = new URL(url);
 
-            if (socket == null) {
-                int port = u.getPort();
-                socket = new Socket(u.getHost(), port > 0 ? port : HTTP_DEFAULT_PORT);
-            }
+            handleSocket(u);
 
             String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n"
                     + "Host: localhost:8080\r\n"
@@ -100,7 +93,6 @@ public class HttpClient11 implements HttpClient {
 
             OutputStream os = socket.getOutputStream();
             os.write(request.getBytes());
-            os.close();
 
             return getContents(socket.getInputStream());
         } catch (Exception x) {
@@ -113,5 +105,15 @@ public class HttpClient11 implements HttpClient {
     public void close() throws IOException {
         socket.close();
         socket = null;
+    }
+
+    private void handleSocket(URL url) throws IOException {
+        if (socket == null || socket.isClosed()) {
+            if (socket != null) {
+                socket.close();
+            }
+
+            socket = new Socket(url.getHost(), url.getPort() > 0 ? url.getPort() : HTTP_DEFAULT_PORT);
+        }
     }
 }
