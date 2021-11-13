@@ -6,14 +6,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URL;
 
-/*
-* TODO: Add the HOST header to the Requests.
- */
 public class HttpClient11 implements HttpClient {
 
     private static final String HTTP_SUCCESS = "20";
     private static final String GET_FORMAT_STR = "GET %s HTTP/1.1";
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    private static final String HOST_HEADER = "Host: localhost:8080";
+    private static final String RANGE_HEADER = "Range: bytes=%s-%s";
 
     private static Socket socket = null;
 
@@ -44,7 +43,7 @@ public class HttpClient11 implements HttpClient {
             handleSocket(u);
 
             String request = String.format(GET_FORMAT_STR, u.getFile()) + "\r\n"
-                    + "Host: localhost:8080\r\n"
+                    + HOST_HEADER + "\r\n"
                     + USER_AGENT + "\r\n\r\n";
 
             OutputStream os = socket.getOutputStream();
@@ -65,8 +64,8 @@ public class HttpClient11 implements HttpClient {
             handleSocket(u);
 
             String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n"
-                    + "Host: localhost:8080\r\n"
-                    + String.format("Range: bytes=%s-\r\n", start)
+                    + HOST_HEADER + "\r\n"
+                    + String.format(RANGE_HEADER + "\r\n", start, "")
                     + USER_AGENT + "\r\n\r\n";
 
             OutputStream os = socket.getOutputStream();
@@ -87,8 +86,8 @@ public class HttpClient11 implements HttpClient {
             handleSocket(u);
 
             String request = String.format(GET_FORMAT_STR, u.getPath()) + "\r\n"
-                    + "Host: localhost:8080\r\n"
-                    + String.format("Range: bytes=%s-%s\r\n", start, end)
+                    + HOST_HEADER + "\r\n"
+                    + String.format(RANGE_HEADER + "\r\n", start, end)
                     + USER_AGENT + "\r\n\r\n";
 
             OutputStream os = socket.getOutputStream();
