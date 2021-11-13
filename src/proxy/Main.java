@@ -77,7 +77,7 @@ public class Main {
 			for (int i = 0; i < test.segments().size(); i++) {
 				boolean changeTrack = false;
 
-				while (trackIndex < tracks.size() - 1 && lastBandwidth > tracks.get(trackIndex+1).avgBandwidth())
+				while (trackIndex < tracks.size() - 1 && lastBandwidth > tracks.get(trackIndex + 1).avgBandwidth())
 				{
 					trackIndex++;
 					changeTrack = true;
@@ -87,7 +87,7 @@ public class Main {
 					trackIndex--;
 					changeTrack = true;
 				}
-				if (queue.size()*test.segmentDuration() <= test.segmentDuration() && trackIndex > 0) {
+				if (queue.size() * test.segmentDuration() <= test.segmentDuration() && trackIndex > 0) {
 					trackIndex--;
 				}
 
