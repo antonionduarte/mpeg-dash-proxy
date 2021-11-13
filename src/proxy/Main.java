@@ -77,7 +77,6 @@ public class Main {
 			for (int i = 0; i < test.segments().size(); i++) {
 				boolean changeTrack = false;
 
-
 				while (trackIndex < tracks.size() - 1 && lastBandwidth > tracks.get(trackIndex+1).avgBandwidth())
 				{
 					trackIndex++;
@@ -85,27 +84,28 @@ public class Main {
 				}
 				while (trackIndex > 0 && lastBandwidth < tracks.get(trackIndex).avgBandwidth())
 				{
-
 					trackIndex--;
 					changeTrack = true;
 				}
-				if(queue.size()*test.segmentDuration() <= test.segmentDuration() && trackIndex > 0)
+				if (queue.size()*test.segmentDuration() <= test.segmentDuration() && trackIndex > 0) {
 					trackIndex--;
+				}
 
 				String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename(); // We make an HTTP request to get our segments from the HTTP servers
 				SegmentContent firstSegment = null;
+
 				if (changeTrack) {
 					test = tracks.get(trackIndex);
 					request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename();
 
 					firstSegment = getSegmentContent(request, test, 0);
-
 				}
+
 				double startTime = System.nanoTime();
 				SegmentContent segmentContent = getSegmentContent(request, test, i);
 				double endTime = System.nanoTime();
 
-				if(firstSegment != null){
+				if (firstSegment != null){
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 					try {
 						out.write(firstSegment.data());
