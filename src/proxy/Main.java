@@ -90,6 +90,9 @@ public class Main {
 				if (queue.size() * test.segmentDuration() <= test.segmentDuration() && trackIndex > 0) {
 					trackIndex--;
 				}
+				if (queue.remainingCapacity() == 0) {
+					trackIndex++;
+				}
 
 				String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename(); // We make an HTTP request to get our segments from the HTTP servers
 				SegmentContent firstSegment = null;
@@ -117,6 +120,7 @@ public class Main {
 				}
 				double elapsedTimeSeconds = (endTime - startTime) / 1_000_000_000;
 				lastBandwidth = (((double) segmentContent.data().length * 8) / (elapsedTimeSeconds));
+				System.out.println("REMAINING CAPACITY: " + queue.remainingCapacity());
 
 				try {
 					queue.put(segmentContent);
