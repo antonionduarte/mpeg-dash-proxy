@@ -105,12 +105,12 @@ public class Main {
 				SegmentContent segmentContent = getSegmentContent(request, test, i);
 				double endTime = System.nanoTime();
 
-				if (firstSegment != null){
+				if (firstSegment != null) {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 					try {
 						out.write(firstSegment.data());
 						out.write(segmentContent.data());
-					} catch (Exception e){
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					segmentContent = new SegmentContent(test.contentType(), out.toByteArray());
