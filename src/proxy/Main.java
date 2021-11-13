@@ -1,6 +1,6 @@
 package proxy;
 
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -43,7 +43,7 @@ public class Main {
 			this.movie = movie;
 			this.queue = queue;
 			
-			this.http = new HttpClient11();
+			this.http = new HttpClient10();
 			String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/manifest.txt";
 			String manifestStr = new String(http.doGet(request));
 
@@ -70,53 +70,53 @@ public class Main {
 		 */
 		public void run() {
 			List<MovieManifest.Track> tracks = manifest.tracks();
-			int trackIndex = tracks.size() - 1; // Start out with the highest quality possible
+			int trackIndex = 0;
 
 			MovieManifest.Track test = tracks.get(trackIndex); // We get our track with our trackIndex
-			double lastBandwidth = 0; // Used to know which track to download from dependent on the amount of time it takes to download 3 seconds of video
-			double trackBandwidth = test.avgBandwidth(); // The bandwidth advised using to get this track without stops
-
+			double lastBandwidth = 0; // Used to know which track to download from dependant on the amount of time it takes to download 3 seconds of video
 			for (int i = 0; i < test.segments().size(); i++) {
-				trackBandwidth = test.avgBandwidth();
 				boolean changeTrack = false;
 
-				while (lastBandwidth > 0 && lastBandwidth > trackBandwidth && trackIndex < tracks.size() - 2)
+
+				while (trackIndex < tracks.size() - 1 && lastBandwidth > tracks.get(trackIndex+1).avgBandwidth())
 				{
 					trackIndex++;
-					trackBandwidth = tracks.get(trackIndex + 1).avgBandwidth();
 					changeTrack = true;
 				}
-				while (lastBandwidth > 0 && lastBandwidth < trackBandwidth && trackIndex > 0 && !changeTrack)
+				while (trackIndex > 0 && lastBandwidth < tracks.get(trackIndex).avgBandwidth())
 				{
+
 					trackIndex--;
-					trackBandwidth = tracks.get(trackIndex).avgBandwidth();
 					changeTrack = true;
 				}
+				if(queue.size()*test.segmentDuration() <= test.segmentDuration() && trackIndex > 0)
+					trackIndex--;
 
 				String request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename(); // We make an HTTP request to get our segments from the HTTP servers
-				System.out.println(request);
-
-				if (changeTrack && (i > 1)) {
+				SegmentContent firstSegment = null;
+				if (changeTrack) {
 					test = tracks.get(trackIndex);
 					request = MEDIA_SERVER_BASE_URL + "/" + movie + "/" + test.filename();
 
-					SegmentContent firstSegment = getSegmentContent(request, test, 0);
+					firstSegment = getSegmentContent(request, test, 0);
 
-					try {
-						queue.put(firstSegment);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 				}
-
-				System.out.println("Track: " + trackIndex);
 				double startTime = System.nanoTime();
 				SegmentContent segmentContent = getSegmentContent(request, test, i);
 				double endTime = System.nanoTime();
 
+				if(firstSegment != null){
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					try {
+						out.write(firstSegment.data());
+						out.write(segmentContent.data());
+					} catch (Exception e){
+						e.printStackTrace();
+					}
+					segmentContent = new SegmentContent(test.contentType(), out.toByteArray());
+				}
 				double elapsedTimeSeconds = (endTime - startTime) / 1_000_000_000;
-				lastBandwidth = (((double) segmentContent.data().length * 8) / elapsedTimeSeconds);
-				System.out.println("Queue Size: " + queue.size());
+				lastBandwidth = (((double) segmentContent.data().length * 8) / (elapsedTimeSeconds));
 
 				try {
 					queue.put(segmentContent);
@@ -126,9 +126,8 @@ public class Main {
 			}
 
 			try {
-				queue.put(new SegmentContent(null, new byte[0]));
-				http.close();
-			} catch (InterruptedException | IOException e) {
+				queue.put(new SegmentContent(test.contentType(), new byte[0]));
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
